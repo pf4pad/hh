@@ -118,10 +118,10 @@ const createCard = (vacancy) => {
         </div>
         <p class="vacancy__description">${description}</p>
         <p class="vacancy__date">
-          <time datetime="2022-02-25">${date}</time>
+          <time datetime="${date}">${date}</time>
         </p>
         <div class="vacancy__wrapper-btn">
-          <a class="vacancy__response vacancy__open-modal" href="#" data-vacancy="3515">Откликнуться</a>
+          <a class="vacancy__response vacancy__open-modal" href="#" data-vacancy="${id}">Откликнуться</a>
           <button class="vacancy__contacts">Показать контакты</button>
         </div>
   </article>
@@ -148,10 +148,28 @@ const renderCards = (data) => {
 
 const getData = () => fetch('http://localhost:3000/api/vacancy').then(response => response.json())
 
+const formSearch = document.querySelector('.bottom__search');
+
+formSearch.addEventListener('submit', e => {
+  e.preventDefault();
+  // После формы обращение к имени search
+  const textSearch = formSearch.search.value
+  if (textSearch.length > 2) {
+    formSearch.search.style.borderColor = '';
+
+    const data = getData({ search: textSearch })
+  } else {
+    formSearch.search.style.borderColor = 'red';
+    setTimeout(() => {
+      formSearch.search.style.borderColor = ''
+    }, 2000)
+  }
+})
+
 const init = async () => {
   const data = await getData();
   renderCards(data)
 }
 
 init();
-renderCards(['1', '2', '3'])
+
