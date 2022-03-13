@@ -92,39 +92,42 @@ overlayVacancy.addEventListener('click', (e) => {
     overlayVacancy.classList.remove('overlay_active')
 })
 
-// Вівод карточек 
+// Вывод карточек 
 
 const createCard = (vacancy) => {
-  const { title,
+  const {
+    title,
     id,
     compensation,
     workSchedule,
     employer,
-    adress,
+    address,
     description,
-    date } = vacancy
+    date } = vacancy;
+
   const card = document.createElement('li')
   card.classList.add('result__item');
 
-  card.insertAdjacentHTML('afterbegin', `<article class="vacancy">
-        <h2 class="vacancy__title">
-          <a class="vacancy__open-modal" href="#" data-vacancy="${id}">${title}</a>
-        </h2>
-        <p class="vacancy__compensation">${compensation}</p>
-        <p class="vacancy__work-schedule">${workSchedule}</p>
-        <div class="vacancy__employer">
-          <p class="vacancy__employer-title">${employer}</p>
-          <p class="vacancy__employer-address">${adress}</p>
-        </div>
-        <p class="vacancy__description">${description}</p>
-        <p class="vacancy__date">
-          <time datetime="${date}">${date}</time>
-        </p>
-        <div class="vacancy__wrapper-btn">
-          <a class="vacancy__response vacancy__open-modal" href="#" data-vacancy="${id}">Откликнуться</a>
-          <button class="vacancy__contacts">Показать контакты</button>
-        </div>
-  </article>
+  card.insertAdjacentHTML('afterbegin', `
+        <article class="vacancy">
+              <h2 class="vacancy__title">
+                <a class="vacancy__open-modal" href="#" data-vacancy="${id}">${title}</a>
+              </h2>
+              <p class="vacancy__compensation">${compensation}</p>
+              <p class="vacancy__work-schedule">${workSchedule}</p>
+              <div class="vacancy__employer">
+                <p class="vacancy__employer-title">${employer}</p>
+                <p class="vacancy__employer-address">${address}</p>
+              </div>
+              <p class="vacancy__description">${description}</p>
+              <p class="vacancy__date">
+                <time datetime="${date}">${date}</time>
+              </p>
+              <div class="vacancy__wrapper-btn">
+                <a class="vacancy__response vacancy__open-modal" href="#" data-vacancy="${id}">Откликнуться</a>
+                <button class="vacancy__contacts">Показать контакты</button>
+              </div>
+        </article>
 `);
   return card;
 };
@@ -133,8 +136,6 @@ const createCard = (vacancy) => {
 const renderCards = (data) => {
 
   resultList.textContent = '';
-
-
   const cards = data.map(createCard);
   console.log(cards)
   resultList.append(...cards)
@@ -146,18 +147,30 @@ const renderCards = (data) => {
 
 }
 
-const getData = () => fetch('http://localhost:3000/api/vacancy').then(response => response.json())
+const getData = ({ search } = {}) => {
+  if (search) {
+    return fetch(`http://localhost:3000/api/vacancy?search=${search}`)
+      .then(response => response.json())
+  }
+  return fetch('http://localhost:3000/api/vacancy')
+    .then(response => response.json())
+
+};
+
 
 const formSearch = document.querySelector('.bottom__search');
 
-formSearch.addEventListener('submit', e => {
+formSearch.addEventListener('submit', async (e) => {
+
   e.preventDefault();
   // После формы обращение к имени search
-  const textSearch = formSearch.search.value
+  const textSearch = formSearch.search.value;
+
   if (textSearch.length > 2) {
     formSearch.search.style.borderColor = '';
-
-    const data = getData({ search: textSearch })
+    const data = await getData({ search: textSearch });
+    renderCards(data);
+    formSearch.reset()
   } else {
     formSearch.search.style.borderColor = 'red';
     setTimeout(() => {
@@ -168,7 +181,7 @@ formSearch.addEventListener('submit', e => {
 
 const init = async () => {
   const data = await getData();
-  renderCards(data)
+  renderCards(data);
 }
 
 init();
